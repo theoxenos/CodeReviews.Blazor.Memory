@@ -1,0 +1,28 @@
+@using MemoryGame.Models
+<div class="mb-3">
+    <span class="space-label display-space">Mission Difficulty</span>
+    <div class="difficulty-selector">
+        @foreach (Difficulty difficulty in Enum.GetValues(typeof(Difficulty)))
+        {
+            <button class="btn btn-difficulty @(SelectedDifficulty == difficulty ? "active" : "")"
+                    @onclick="@(() => SetDifficulty(difficulty))">
+                @(difficulty.GetDifficultyName())
+            </button>
+        }
+    </div>
+</div>
+
+@code
+{
+    [Parameter] public Difficulty SelectedDifficulty { get; set; }
+
+    [Parameter] public EventCallback<Difficulty> SelectedDifficultyChanged { get; set; }
+
+    private async Task SetDifficulty(Difficulty difficulty)
+    {
+        if (SelectedDifficulty != difficulty)
+        {
+            await SelectedDifficultyChanged.InvokeAsync(difficulty);
+        }
+    }
+}

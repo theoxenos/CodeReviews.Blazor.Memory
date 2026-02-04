@@ -1,0 +1,63 @@
+@page "/scores"
+@using MemoryGame.Features.Scores.Components
+@using MemoryGame.Models
+@using MemoryGame.Services
+@rendermode @(new InteractiveServerRenderMode(false))
+
+@inject ScoreService ScoreService
+
+<div class="mb-4">
+    <h1 class="display-4 text-center display-space">Mission Logs</h1>
+    <p class="text-center text-info">Review your past galactic adventures</p>
+</div>
+
+@if (_gameScores.Count == 0)
+{
+    <div class="alert alert-info bg-dark border-info text-info text-center">
+        <p class="mb-0">No mission data found. Time to explore the universe!</p>
+    </div>
+}
+else
+{
+    <div class="row justify-content-center mb-4">
+        <div class="col col-md-8 col-lg-6">
+            <ScoreFilter @bind-SelectedDifficulty="@SelectedDifficulty"/>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col col-md-8 col-lg-6">
+            <div class="table-responsive">
+                <table class="table space-table text-center">
+                    <thead>
+                    <tr>
+                        <th class="display-space">Date</th>
+                        <th class="display-space">Difficulty</th>
+                        <th class="display-space">Completion Time</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (Score score in _gameScores.Where(s => SelectedDifficulty == null || s.Difficulty == SelectedDifficulty))
+                    {
+                        <tr>
+                            <td class="align-middle">@score.Date.ToString("G")</td>
+                            <td class="align-middle">@score.Difficulty.GetDifficultyName()</td>
+                            <td class="align-middle fw-bold text-info">@(score.GameDuration.ToString(@"mm\:ss"))</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@code
+{
+    private List<Score> _gameScores = [];
+    private Difficulty? SelectedDifficulty { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _gameScores = await ScoreService.GetScores();
+    }
+}
